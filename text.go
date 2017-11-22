@@ -73,6 +73,14 @@ func TextProducer() Producer {
 			return errors.New("no data given to produce text from")
 		}
 
+		if rdr, ok := data.(io.Reader); ok {
+			if closer, ok := data.(io.Closer); ok {
+				defer closer.Close()
+			}
+			_, err := io.Copy(writer, rdr)
+			return err
+		}
+
 		if tm, ok := data.(encoding.TextMarshaler); ok {
 			txt, err := tm.MarshalText()
 			if err != nil {
